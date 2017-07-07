@@ -1,0 +1,221 @@
+
+import java.io.*;
+import java.util.*;
+import java.math.*;
+
+
+public class COLORS
+{
+  public COLORS() throws IOException
+  {
+
+
+     FileReader fr = new FileReader("COLORS.IN");
+     BufferedReader br = new BufferedReader(fr);
+
+     int numSets = Integer.parseInt(br.readLine());
+
+     DataSet ds[] = new DataSet[numSets];
+
+     // read in data sets
+     for (int i = 0; i < numSets; i++)
+     {
+       int numColors = Integer.parseInt(br.readLine());
+       RGB colorsSet[] = new RGB[numColors];
+
+
+       // read in colors
+       for (int k = 0; k < numColors; k++)
+       {
+
+         String args = br.readLine();
+         StringTokenizer tok = new StringTokenizer(args);
+
+         colorsSet[k] = new RGB(Integer.parseInt(tok.nextToken()), Integer.parseInt(tok.nextToken()), Integer.parseInt(tok.nextToken()));
+       }
+
+       ds[i] = new DataSet(i, colorsSet);
+
+     }
+
+
+     // output
+     for (int i = 0; i < numSets; i++)
+     {
+       int setNumber = i + 1;
+       System.out.println("Data Set " + setNumber + ":");
+
+
+       RGB set[] = ds[i].colors;
+
+       int possibleCombos = set.length * set.length - set.length;
+       OneSet oneSet[] = new OneSet[possibleCombos];
+       //System.out.println(possibleCombos);
+       int index = 0;
+
+       // calculate contrast
+       for (int firstSet = 0; firstSet < set.length; firstSet++)
+       {
+         for (int secondSet = 0; secondSet < set.length; secondSet++)
+         {
+           if (firstSet == secondSet)
+             continue;
+           else
+           {
+             oneSet[index] = new OneSet(firstSet, secondSet,
+                                        calcContrast(set[firstSet],
+                 set[secondSet]));
+             index++;
+           }
+         }
+       }
+
+
+       double[] array = new double[oneSet.length];
+
+       for (int bla = 0; bla < oneSet.length; bla++)
+       {
+         array[bla] = oneSet[bla].contr;
+       }
+
+       java.util.Arrays.sort(array);
+
+       //System.out.println(array.length);
+
+
+      double contrast = array[array.length-1];//oneSet[0].contr;
+      ArrayList output = new ArrayList();
+
+
+      //System.out.println(set.length);
+       for (int k = 0; k < oneSet.length; k++)
+       {
+         //;
+
+         //System.out.println(oneSet[k].contr);
+
+         if (oneSet[k].contr == contrast)
+         {
+           //RGB s = set[oneSet[k].row1];
+           int row1 = oneSet[k].row1;
+           int row2 = oneSet[k].row2;
+
+           output.add(new Output(row1, row2));
+
+           //System.out.println(row1 + " " + row2);
+
+         }
+       }
+
+       ArrayList fin = new ArrayList();
+
+       for (int d = 0; d < output.size(); d++)
+       {
+          for (int g = 0; g < output.size(); g++)
+          {
+              Output one = (Output)output.get(d);
+              Output two = (Output)output.get(g);
+
+              if (one.row1 == two.row2 && one.row2 == two.row1)
+              {
+                if (one.row1 < one.row2)
+                  output.remove(two);
+              }
+          }
+       }
+
+       for (int xoxo = 0; xoxo < output.size(); xoxo++)
+       {
+         Output x = (Output)output.get(xoxo);
+         int row1 = x.row1+1;
+           int row2 = x.row2+1;
+
+           System.out.println(row1 + " " + row2);
+
+       }
+
+     }
+
+
+  }
+  public static void main (String ar[]) throws Exception
+  {
+     new COLORS();
+
+
+  }
+
+  public double calcContrast(RGB set1, RGB set2)
+  {
+    double R_dif = set1.R - set2.R;
+
+    double G_dif = set1.G - set2.G;
+
+    double B_dif = set1.B - set2.B;
+
+    double sr = Math.sqrt(R_dif*R_dif+G_dif*G_dif+B_dif*B_dif);
+
+    //System.out.println(sr);
+
+    return sr;
+  }
+
+  private class DataSet
+  {
+    public int num;
+    public RGB[] colors;
+
+    public DataSet(int num, RGB[] colors)
+    {
+      this.num = num;
+      this.colors = colors;
+    }
+
+
+  }
+
+  private class RGB
+  {
+    public int R;
+    public int G;
+    public int B;
+
+    public RGB(int r, int g, int b)
+    {
+      this.R = r;
+      this.G= g;
+      this.B = b;
+
+    }
+  }
+
+  private class OneSet
+  {
+    public int row1;
+    public int row2;
+    public double contr;
+
+    public OneSet(int r1, int r2, double con)
+    {
+      row1 = r1;
+      row2 = r2;
+
+      contr = con;
+    }
+
+
+  }
+
+  private class Output
+  {
+    public int row1;
+    public int row2;
+
+    public Output(int r1, int r2)
+    {
+      row1 = r1;
+      row2=r2;
+    }
+
+  }
+}
